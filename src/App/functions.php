@@ -9,3 +9,8 @@ function dd(mixed $value): void
   echo "</pre";
   die(); // Tells PHP to stop loading rest of page. Improves performance.
 }
+
+function e(mixed $value): string
+{
+  return htmlspecialchars((string) $value);
+}
