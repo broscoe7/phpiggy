@@ -14,6 +14,6 @@ class HomeController
     }
     public function home(): void
     {
-        echo $this->view->render("index.php", ["title" => "Home Page"]); // This is how we pass data to the template engine
+        echo $this->view->render("index.php"); // This is how we pass data to the template engine
     }
 }

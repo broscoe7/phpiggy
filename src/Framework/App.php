@@ -24,6 +24,11 @@ class App
     $this->router->add("GET", $path, $controller);
   }
 
+  public function addMiddleware(string $middleware)
+  {
+    $this->router->addMiddleware($middleware);
+  }
+
   public function run()
   {
     $path = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
