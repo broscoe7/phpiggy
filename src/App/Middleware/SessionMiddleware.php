@@ -19,6 +19,13 @@ class SessionMiddleware implements MiddlewareInterface
         if (headers_sent($filename, $line)) {
             throw new SessionException("Headers already sent. Consider enabling output buffering. Data outputted from {$filename} line {$line}");
         }
+
+        session_set_cookie_params([
+            "secure" => $_ENV["APP_ENV"] === "production", // Prevents cookies from being sent on insecure connections
+            "httponly" => true, // Prevents Javascript from accessing the cookie
+            "samesite" => "lax", // So that cookies are only accessible on our site
+        ]);
+
         session_start();
         $next();
         session_write_close(); // Tells PHP to write session data and close session. This improves app performance.

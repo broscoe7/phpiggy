@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Framework;
 
-use PDO, PDOException;
+use PDO, PDOException, PDOStatement;
 
 class Database
 {
     private PDO $connection; // Without this the connection will be lost after the construct function ends. Marking it private forces us to define methods in this class if we want to access the built-in PDO methods externally.
+    private PDOStatement $stmt; // This allows us to work with prepared statements in the query function.
 
     public function __construct(string $driver, array $config, string $username, string $password)
     {
@@ -22,8 +23,25 @@ class Database
         }
     }
 
-    public function query(string $query)
+    public function query(string $query, array $params = [PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]): Database
     {
-        $this->connection->query($query);
+        $this->stmt = $this->connection->prepare($query);
+        $this->stmt->execute($params);
+        return $this;
+    }
+
+    public function count()
+    {
+        return $this->stmt->fetchColumn(); // Fetchcolumn() returns a single column from a results array (default index is zero, the first row in the results array, which in this case is the only value we need)
+    }
+
+    public function find()
+    {
+        return $this->stmt->fetch();
+    }
+
+    public function id()
+    {
+        return $this->connection->lastInsertId(); // Returns the id of the last inserted row.
     }
 }

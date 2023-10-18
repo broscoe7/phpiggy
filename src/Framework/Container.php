@@ -64,7 +64,7 @@ class Container
         if (array_key_exists($id, $this->resolved)) return $this->resolved[$id];
 
         $factory = $this->definitions[$id];
-        $dependency = $factory();
+        $dependency = $factory($this); // Passes container to the factory function so that dependencies can be grabbed manually
         $this->resolved[$id] = $dependency; // Keeping track of which class already have an instance created.
         return $dependency;
     }

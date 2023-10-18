@@ -16,6 +16,7 @@ class Router
       "path" => $path,
       "method" => strtoupper($method),
       "controller" => $controller,
+      "middleware" => [],  // Allows us to set specific middleware to a route so we can control which routes are accessible through authentication
     ];
   }
 
@@ -41,8 +42,11 @@ class Router
       $controllerInstance = $container ? $container->resolve($class) : new $class();
       $action = fn () => $controllerInstance->{$function}();
 
+      // Merge middleware list with route specific middlewares
+      $allMiddlewares = [...$route["middleware"], ...$this->middlewares]; // Apply global middleware last since it gets executed first.
+
       // Activate Middlewares
-      foreach ($this->middlewares as $middleware) {
+      foreach ($allMiddlewares as $middleware) {
         $middlewareInstance = $container ? $container->resolve($middleware) : new $middleware;
         $action = fn () => $middlewareInstance->process($action);
       }
@@ -55,5 +59,11 @@ class Router
   public function addMiddleware(string $middleware)
   {
     $this->middlewares[] = $middleware;
+  }
+
+  public function addRouteMiddleware(string $middleware)
+  {
+    $lastRouteKey = array_key_last($this->routes);
+    $this->routes[$lastRouteKey]["middleware"][] = $middleware;
   }
 }
