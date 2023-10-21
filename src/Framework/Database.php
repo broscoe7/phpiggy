@@ -17,13 +17,13 @@ class Database
         $dsn = "{$driver}:{$config}";
         // An uncaught error could leak important information about the database in the command line. This prevents that kind of leak.
         try {
-            $this->connection = new PDO($dsn, $username, $password);
+            $this->connection = new PDO($dsn, $username, $password, [PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]);
         } catch (PDOException $e) {
             die("Unable to connect to database");
         }
     }
 
-    public function query(string $query, array $params = [PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]): Database
+    public function query(string $query, array $params = []): Database
     {
         $this->stmt = $this->connection->prepare($query);
         $this->stmt->execute($params);
@@ -38,6 +38,11 @@ class Database
     public function find()
     {
         return $this->stmt->fetch();
+    }
+
+    public function findAll()
+    {
+        return $this->stmt->fetchAll();
     }
 
     public function id()

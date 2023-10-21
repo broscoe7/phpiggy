@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Framework\{TemplateEngine, Database, Container};
 use App\Config\Paths;
-use App\Services\{ValidatorService, UserService};
+use App\Services\{TransactionService, ValidatorService, UserService};
 
 return [
     TemplateEngine::class => fn () => new TemplateEngine(Paths::VIEWS),
@@ -18,5 +18,9 @@ return [
     UserService::class => function (Container $container) {
         $db = $container->get(Database::class);
         return new UserService($db);
+    },
+    TransactionService::class => function (Container $container) {
+        $db = $container->get(Database::class);
+        return new TransactionService($db);
     }
 ]; // Returns an associative array with class names as keys and functions returning instances as the values
