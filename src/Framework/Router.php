@@ -8,6 +8,7 @@ class Router
 {
   private array $routes = [];
   private array $middlewares = [];
+  private array $errorHandler;
 
   public function add(string $method, string $path, array $controller): void
   {
@@ -66,6 +67,7 @@ class Router
 
       return;  // This prevents another route from becoming active.
     }
+    $this->dispatchNotFound($container);
   }
 
   public function addMiddleware(string $middleware)
@@ -77,5 +79,26 @@ class Router
   {
     $lastRouteKey = array_key_last($this->routes);
     $this->routes[$lastRouteKey]["middleware"][] = $middleware;
+  }
+
+  public function setErrorHandler(array $controller)
+  {
+    $this->errorHandler = $controller;
+  }
+
+  public function dispatchNotFound(?Container $container)
+  {
+    [$class, $function] = $this->errorHandler;
+    // Instantiate controller
+    $controllerInstance = $container ? $container->resolve($class) : new $class;
+    // Invoke controller from the controller instance
+    $action = fn () => $controllerInstance->$function();
+
+    // Activate middlewares
+    foreach ($this->middlewares as $middleware) {
+      $middlewareInstance = $container ? $container->resolve($middleware) : new $middleware;
+      $action = fn () => $middlewareInstance->process($action);
+    }
+    $action();
   }
 }

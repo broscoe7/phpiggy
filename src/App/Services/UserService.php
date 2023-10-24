@@ -54,6 +54,22 @@ class UserService
     public function logout()
     {
         unset($_SESSION["user"]);
-        session_regenerate_id();
+        // Alternative: 
+        // session_destroy();
+        // This deletes all session data, but you might not want that if you are tracking users.
+
+        // session_regenerate_id(); Changes id of cookie.
+
+        // Instead of just changing the cookie id, this completely wipes out the old cookie and creates a new one. For more secure sites log out the user completely this way.
+        $params = session_get_cookie_params(); // Allows us to enter in currently existing values
+        setcookie(
+            "PHPSESSID", // Cookie name
+            "", // Value
+            time() - 2000, // Expiration date: this sets the expiration date to "now," destroying the cookie
+            $params["path"],
+            $params["domain"],
+            $params["secure"],
+            $params["httponly"]
+        );
     }
 }

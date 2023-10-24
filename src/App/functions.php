@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Framework\Http;
+
 function dd(mixed $value): void
 {
   echo "<pre>";
@@ -18,6 +20,6 @@ function e(mixed $value): string
 function redirectTo(string $path)
 {
   header("Location: {$path}");
-  http_response_code(302); // The code for redirection
+  http_response_code(Http::REDIRECT_STATUS_CODE); // The code for redirection
   exit; // Since a redirect might block other parts of the app.
 }
